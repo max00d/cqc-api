@@ -1,0 +1,22 @@
+*secret*
+secrets/
+*mypy*/
+*log
+*old/*
+old/
+*data/*
+*dev/*
+dev/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+# Unit test / coverage reports
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+.idea
+*.log
+venv/
+*.pickle
