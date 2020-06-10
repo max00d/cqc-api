@@ -20,3 +20,4 @@ coverage.xml
 *.log
 venv/
 *.pickle
+*.csv
