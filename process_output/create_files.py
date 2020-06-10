@@ -1,7 +1,6 @@
 """processes the raw data that has been downloaded from CQC API and produced the required output csv files"""
 import pickle
 import pandas as pd
-import numpy as np
 
 from pathlib import Path
 from process_output.cqc_columns_names import cols, ratings_cols
