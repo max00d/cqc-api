@@ -27,6 +27,7 @@ class CQCProviderAPI(CQCAPI):
         data that could be optimsed.  Required to get the most up to data when processing the responses
         """
         self.locations_results_all = pickle.load(open(f'{self.pth}/{fn}.pickle', 'rb'))
+        print(len(self.locations_results_all))
 
     def _handle_prodivder_split(self, process_no, id_list, running_dict, total_ids, start_id, retry_wait=15,
                                 print_every=20):
@@ -50,14 +51,20 @@ class CQCProviderAPI(CQCAPI):
                         print(f'process {process_no}: getting response from {id}, no: {start_id} of {total_ids}, '
                               f'{start_id / total_ids * 100:.1f}%')
                     loc_resp = requests.get(request_url)
-                    running_dict[id[1]] = loc_resp.json()
-                    have_resp = True
-                    start_id += 1
+                    if loc_resp.json().get('statusCode'):
+                        print(loc_resp.json())
+                        spl = loc_resp.json().get('message').split()
+                        print(f'sleeping for {int(spl[len(spl) - 2])} seconds')
+                        time.sleep(int(spl[len(spl) - 2]))
+                    else:
+                        running_dict[id[1]] = loc_resp.json()
+                        have_resp = True
+                        start_id += 1
                 except requests.exceptions.ConnectionError as e:
                     print(f'Max retries attempted @ {id}, waiting for {retry_wait} seconds')
                     time.sleep(retry_wait)
 
-    def get_all_prodivers(self, chunk_size=10_000):
+    def get_all_providers(self, chunk_size=10_000):
         """
         get provider details at the level of location - load the results of CQCAPI.retrieve_location_details()
         loads pickled file into memory and iterated through to get the prover details
@@ -93,6 +100,6 @@ class CQCProviderAPI(CQCAPI):
 
 
 if __name__ == '__main__':
-    papi = CQCProviderAPI()
-    # papi.load_from_local_file()
-    papi.get_all_prodivers()
+    api = CQCProviderAPI()
+    api.get_all_providers()
+    # api.get_all_providers()

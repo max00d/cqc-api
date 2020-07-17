@@ -23,7 +23,7 @@ iii) iterate over the location details and get the provider information
 from download_cqc_data.get_provider_info import CQCProviderAPI
 
 cqcproviderapi = CQCProviderAPI()
-cqcproviderapi.get_all_prodivers()
+cqcproviderapi.get_all_providers()
 ```
 iv) use the pickled files on disk to create the output files
 ```python

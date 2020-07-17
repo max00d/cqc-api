@@ -72,7 +72,7 @@ class CQCAPI:
         """load the all_location from disk rather than downloading from API"""
         self.all_locations = pickle.load(open(f'{self.pth}/{fn}.pickle', 'rb'))
 
-    def _handle_location_split(self, location_ids, running_dict, total_ids, start_id, retry_wait=15):
+    def _handle_location_split(self, location_ids, running_dict, total_ids, start_id, retry_wait=39):
         """
         for each set of location_ids iterate through and get the response - if we get banned then wait and retry until
         we get the response
@@ -86,15 +86,22 @@ class CQCAPI:
         for id in location_ids:
             request_url = f'{self.base_url}/locations/{id}'
             have_resp = False
-            try:
-                print(f'getting response from {id}, no: {start_id} of {total_ids}, {start_id / total_ids * 100:.1f}%')
-                loc_resp = requests.get(request_url)
-                running_dict[id] = loc_resp.json()
-                have_resp = True
-                start_id += 1
-            except requests.exceptions.ConnectionError as e:
-                print(f'Max retries attempted @ {id}, waiting for {retry_wait} seconds')
-                time.sleep(retry_wait)
+            while not have_resp:
+                try:
+                    print(f'getting response from {id}, no: {start_id} of {total_ids}, {start_id / total_ids * 100:.1f}%')
+                    loc_resp = requests.get(request_url)
+                    if loc_resp.json().get('statusCode'):
+                        print(loc_resp.json())
+                        spl = loc_resp.json().get('message').split()
+                        print(f'sleeping for {int(spl[len(spl)-2])} seconds')
+                        time.sleep(int(spl[len(spl)-2]))
+                    else:
+                        running_dict[id] = loc_resp.json()
+                        have_resp = True
+                        start_id += 1
+                except requests.exceptions.ConnectionError as e:
+                    print(f'Max retries attempted @ {id}, waiting for {retry_wait} seconds')
+                    time.sleep(retry_wait)
 
     def retrieve_location_details(self, chunk_size=4_000):
         """
